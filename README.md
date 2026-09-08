@@ -1,4 +1,4 @@
-# Passforge
+# Passmint
 
 A Firefox extension that generates strong passwords and passphrases, with enough
 knobs to satisfy whatever arbitrary rules the site you're signing up for has

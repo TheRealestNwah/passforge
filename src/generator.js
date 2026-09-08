@@ -1,5 +1,5 @@
 /**
- * Passforge core generation logic.
+ * Passmint core generation logic.
  *
  * Every random choice goes through the Web Crypto CSPRNG with rejection
  * sampling, so there is no modulo bias and no reliance on Math.random().

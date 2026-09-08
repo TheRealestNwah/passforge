@@ -30,6 +30,6 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: passforge-unsigned
+          name: passmint-unsigned
           path: web-ext-artifacts/*.zip
           if-no-files-found: error

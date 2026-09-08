@@ -10,6 +10,9 @@ import { applyBrowserTheme } from '../src/theme.js';
 
 const $ = (id) => document.getElementById(id);
 
+// Deliberately still the old product name: renaming this key would orphan the
+// settings of anyone who installed the extension before the rename, silently
+// resetting them to defaults. Users never see it.
 const STORAGE_KEY = 'passforge:settings';
 
 const DEFAULTS = {
