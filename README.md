@@ -159,7 +159,7 @@ only part that touches `browser.*`, and it degrades to in-memory defaults when
 storage or the theme API is unavailable.
 
 ```
-manifest.json         MV3 manifest (Firefox 109+)
+manifest.json         MV3 manifest (Firefox 140+, Android 142+)
 popup/                popup.html, popup.css, popup.js
 src/generator.js      generation, entropy, strength — no browser APIs
 src/theme.js          browser theme -> CSS custom properties
