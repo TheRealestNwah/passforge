@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="Passforge">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#6d63f5" />
+      <stop offset="1" stop-color="#4f46e5" />
+    </linearGradient>
+  </defs>
+  <rect x="2" y="2" width="60" height="60" rx="14" fill="url(#g)" />
+  <!-- shackle -->
+  <path d="M22 27v-6a10 10 0 0 1 20 0v6"
+        fill="none" stroke="#ffffff" stroke-width="5" stroke-linecap="round" />
+  <!-- body -->
+  <rect x="15" y="27" width="34" height="24" rx="6" fill="#ffffff" />
+  <!-- keyhole, drawn as a spark to hint at "generate" -->
+  <circle cx="32" cy="36" r="3.6" fill="#4f46e5" />
+  <path d="M32 39.5v6" stroke="#4f46e5" stroke-width="3.4" stroke-linecap="round" />
+</svg>

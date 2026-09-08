@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Passforge</title>
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <header class="header">
+      <h1 class="brand">
+        <img src="../icons/icon.svg" alt="" width="18" height="18" />
+        Passforge
+      </h1>
+      <div class="tabs" role="tablist" aria-label="Generator mode">
+        <button
+          id="tab-password"
+          class="tab is-active"
+          role="tab"
+          aria-selected="true"
+          aria-controls="panel-password"
+          data-mode="password"
+        >
+          Password
+        </button>
+        <button
+          id="tab-passphrase"
+          class="tab"
+          role="tab"
+          aria-selected="false"
+          aria-controls="panel-passphrase"
+          data-mode="passphrase"
+        >
+          Passphrase
+        </button>
+      </div>
+    </header>
+
+    <section class="output-block">
+      <output id="result" class="result" aria-live="polite" tabindex="0"></output>
+      <div class="output-actions">
+        <button id="copy" class="btn btn-primary" type="button">Copy</button>
+        <button id="regenerate" class="btn btn-icon" type="button" title="Generate a new one (Ctrl+Space)" aria-label="Generate a new one">
+          <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+            <path
+              d="M20 11a8 8 0 1 0-2.3 5.7M20 5v6h-6"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+        </button>
+      </div>
+
+      <div class="strength">
+        <div class="meter" role="img" aria-label="Strength meter">
+          <span class="seg"></span><span class="seg"></span><span class="seg"></span>
+          <span class="seg"></span><span class="seg"></span>
+        </div>
+        <p class="strength-text">
+          <strong id="strength-label">—</strong>
+          <span id="entropy" class="muted"></span>
+        </p>
+        <p id="crack-time" class="muted crack"></p>
+      </div>
+
+      <p id="error" class="error" role="alert" hidden></p>
+    </section>
+
+    <div class="presets">
+      <span class="presets-label">Presets</span>
+      <button class="chip" type="button" data-preset="pin">PIN</button>
+      <button class="chip" type="button" data-preset="readable">Readable</button>
+      <button class="chip" type="button" data-preset="strong">Strong</button>
+      <button class="chip" type="button" data-preset="paranoid">Paranoid</button>
+    </div>
+
+    <!-- ── Password options ─────────────────────────────────────────── -->
+    <section id="panel-password" class="panel" role="tabpanel" aria-labelledby="tab-password">
+      <div class="row row-slider">
+        <label for="length">Length</label>
+        <input id="length" type="range" min="4" max="128" value="20" />
+        <input
+          id="length-number"
+          class="num"
+          type="number"
+          min="4"
+          max="128"
+          value="20"
+          aria-label="Length in characters"
+        />
+      </div>
+
+      <fieldset class="grid">
+        <legend class="sr-only">Character types</legend>
+        <label class="check">
+          <input id="uppercase" type="checkbox" checked />
+          <span>Uppercase <code>A-Z</code></span>
+        </label>
+        <label class="check">
+          <input id="lowercase" type="checkbox" checked />
+          <span>Lowercase <code>a-z</code></span>
+        </label>
+        <label class="check">
+          <input id="digits" type="checkbox" checked />
+          <span>Numbers <code>0-9</code></span>
+        </label>
+        <label class="check">
+          <input id="symbols" type="checkbox" checked />
+          <span>Symbols <code>!@#</code></span>
+        </label>
+      </fieldset>
+
+      <details class="advanced">
+        <summary>Advanced</summary>
+
+        <div class="row">
+          <label for="symbol-set">Symbol set</label>
+          <select id="symbol-set">
+            <option value="standard">Standard — !@#$%^&amp;*()-_=+[]{};:,.&lt;&gt;?/~</option>
+            <option value="safe">Safe — !@#$%^&amp;*()-_=+</option>
+            <option value="custom">Custom…</option>
+          </select>
+        </div>
+
+        <div class="row" id="custom-symbols-row" hidden>
+          <label for="custom-symbols">Custom symbols</label>
+          <input id="custom-symbols" type="text" placeholder="!@#$%" spellcheck="false" />
+        </div>
+
+        <label class="check">
+          <input id="require-each" type="checkbox" checked />
+          <span>Include at least one of every selected type</span>
+        </label>
+        <label class="check">
+          <input id="exclude-ambiguous" type="checkbox" />
+          <span>Avoid look-alikes <code>Il1O0</code></span>
+        </label>
+        <label class="check">
+          <input id="no-repeats" type="checkbox" />
+          <span>No repeated characters</span>
+        </label>
+
+        <div class="row">
+          <label for="exclude-chars">Never use</label>
+          <input id="exclude-chars" type="text" placeholder="e.g. &amp;&lt;&gt;" spellcheck="false" />
+        </div>
+      </details>
+    </section>
+
+    <!-- ── Passphrase options ───────────────────────────────────────── -->
+    <section id="panel-passphrase" class="panel" role="tabpanel" aria-labelledby="tab-passphrase" hidden>
+      <div class="row row-slider">
+        <label for="word-count">Words</label>
+        <input id="word-count" type="range" min="2" max="12" value="6" />
+        <input
+          id="word-count-number"
+          class="num"
+          type="number"
+          min="2"
+          max="12"
+          value="6"
+          aria-label="Number of words"
+        />
+      </div>
+
+      <div class="row">
+        <label for="separator">Separator</label>
+        <select id="separator">
+          <option value="-">Hyphen -</option>
+          <option value=".">Period .</option>
+          <option value="_">Underscore _</option>
+          <option value=" ">Space</option>
+          <option value="">None</option>
+        </select>
+      </div>
+
+      <label class="check">
+        <input id="capitalize" type="checkbox" checked />
+        <span>Capitalize Each Word</span>
+      </label>
+      <label class="check">
+        <input id="add-number" type="checkbox" checked />
+        <span>Add a number</span>
+      </label>
+      <label class="check">
+        <input id="add-symbol" type="checkbox" />
+        <span>Add a symbol</span>
+      </label>
+
+      <p class="muted note">
+        Drawn from a <span id="wordlist-size">—</span>-word list, about
+        <span id="bits-per-word">—</span> bits per word.
+      </p>
+    </section>
+
+    <footer class="footer">
+      <span class="muted">Generated locally — nothing leaves this browser.</span>
+    </footer>
+
+    <script type="module" src="popup.js"></script>
+  </body>
+</html>

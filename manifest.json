@@ -1,0 +1,30 @@
+{
+  "manifest_version": 3,
+  "name": "Passforge",
+  "version": "1.0.0",
+  "description": "Generate strong, random passwords and passphrases with fine-grained complexity controls. Fully offline — nothing ever leaves your browser.",
+  "author": "TheRealestNwah",
+  "homepage_url": "https://github.com/TheRealestNwah/passforge",
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "passforge@therealestnwah.github.io",
+      "strict_min_version": "109.0",
+      "data_collection_permissions": {
+        "required": ["none"]
+      }
+    }
+  },
+  "permissions": ["storage", "clipboardWrite"],
+  "action": {
+    "default_title": "Passforge — generate a password",
+    "default_popup": "popup/popup.html",
+    "default_icon": {
+      "48": "icons/icon.svg",
+      "96": "icons/icon.svg"
+    }
+  },
+  "icons": {
+    "48": "icons/icon.svg",
+    "96": "icons/icon.svg"
+  }
+}
