@@ -6,6 +6,7 @@ import {
   crackTime
 } from '../src/generator.js';
 import { WORDLIST } from '../src/wordlist.js';
+import { applyBrowserTheme } from '../src/theme.js';
 
 const $ = (id) => document.getElementById(id);
 
@@ -244,6 +245,11 @@ function bind() {
 }
 
 async function init() {
+  // Match the browser chrome before anything is read off the screen. The
+  // stylesheet already has a sensible light/dark default, so a slow or absent
+  // theme API costs nothing but the browser's own colours.
+  applyBrowserTheme(document.documentElement);
+
   settings = await loadSettings();
   $('wordlist-size').textContent = WORDLIST.length.toLocaleString();
   $('bits-per-word').textContent = Math.log2(WORDLIST.length).toFixed(1);

@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="16" height="16">
+  <!--
+    Toolbar icon. `context-fill` takes the colour Firefox uses for its own
+    toolbar icons, so this inverts by itself on a dark theme. The colour after
+    it is the fallback for anywhere that keyword is not honoured.
+  -->
+  <path
+    d="M5 7.25V5a3 3 0 0 1 6 0v2.25"
+    fill="none"
+    stroke="context-fill #5b5b66"
+    stroke-opacity="context-fill-opacity"
+    stroke-width="1.6"
+    stroke-linecap="round"
+  />
+  <path
+    fill="context-fill #5b5b66"
+    fill-opacity="context-fill-opacity"
+    fill-rule="evenodd"
+    d="M4.5 7.25h7A1.75 1.75 0 0 1 13.25 9v3.5a1.75 1.75 0 0 1-1.75 1.75h-7A1.75 1.75 0 0 1 2.75 12.5V9A1.75 1.75 0 0 1 4.5 7.25Zm3.5 2.1a1.15 1.15 0 1 0 0 2.3 1.15 1.15 0 0 0 0-2.3Z"
+  />
+</svg>
