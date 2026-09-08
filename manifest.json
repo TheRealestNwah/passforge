@@ -1,10 +1,10 @@
 {
   "manifest_version": 3,
   "name": "Passmint",
-  "version": "1.1.4",
+  "version": "1.1.5",
   "description": "Generate strong, random passwords and passphrases with fine-grained complexity controls. Fully offline — nothing ever leaves your browser.",
   "author": "TheRealestNwah",
-  "homepage_url": "https://github.com/TheRealestNwah/passforge",
+  "homepage_url": "https://github.com/TheRealestNwah/passmint",
   "browser_specific_settings": {
     "gecko": {
       "id": "passforge@therealestnwah.github.io",
