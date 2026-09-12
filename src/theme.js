@@ -10,8 +10,10 @@
  *      active, in which case `getCurrent()` reports no colours at all.
  *   3. The Photon palette baked into popup.css.
  *
- * Everything below the `applyBrowserTheme` entry point is pure colour maths so
- * that it can be tested under Node without a browser.
+ * This module only turns a theme into tokens; reading the theme API and
+ * deciding whether to use it at all (the user can force a style or mode) is
+ * src/appearance.js's job. Nothing here touches browser APIs, so all of it can
+ * be tested under Node.
  */
 
 const WHITE = { r: 255, g: 255, b: 255, a: 1 };
@@ -274,23 +276,4 @@ export function applyTheme(root, theme) {
     root.style.setProperty(name, toCss(color));
   }
   return true;
-}
-
-/**
- * Apply the current theme and keep following it. Safe to call anywhere: if the
- * theme API is missing (no permission, or a non-Firefox browser) this is a
- * no-op and the stylesheet's own light/dark handling takes over.
- */
-export async function applyBrowserTheme(root) {
-  const themeApi = globalThis.browser?.theme ?? globalThis.chrome?.theme;
-  if (!themeApi?.getCurrent) return false;
-
-  try {
-    const applied = applyTheme(root, await themeApi.getCurrent());
-    // Fires when the user switches themes while the popup is open.
-    themeApi.onUpdated?.addListener((info) => applyTheme(root, info?.theme));
-    return applied;
-  } catch {
-    return false;
-  }
 }

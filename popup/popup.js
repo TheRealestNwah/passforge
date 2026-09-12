@@ -6,7 +6,18 @@ import {
   crackTime
 } from '../src/generator.js';
 import { WORDLIST } from '../src/wordlist.js';
-import { applyBrowserTheme } from '../src/theme.js';
+import {
+  ACCENTS,
+  APPEARANCE_DEFAULTS,
+  SNAPSHOT_KEY,
+  applyAppearance,
+  detectBrowserName,
+  isWaterfox,
+  resolveStyle,
+  sanitizePrefs,
+  takeSnapshot
+} from '../src/appearance.js';
+import { mix, normalizeColor, toCss } from '../src/theme.js';
 
 const $ = (id) => document.getElementById(id);
 
@@ -66,6 +77,13 @@ const CONTROLS = {
 
 let settings = { ...DEFAULTS };
 
+// Appearance lives under its own key so the generator settings and the look
+// can change independently.
+const APPEARANCE_KEY = 'passmint:appearance';
+const root = document.documentElement;
+const appearance = { prefs: { ...APPEARANCE_DEFAULTS }, browserName: '', theme: null };
+let appearanceOpen = false;
+
 /* ── Storage (browser.* in Firefox, chrome.* elsewhere, memory as a last resort) ── */
 
 const storageArea = globalThis.browser?.storage?.local ?? globalThis.chrome?.storage?.local;
@@ -109,8 +127,11 @@ function writeForm() {
   $('custom-symbols-row').hidden = settings.symbolSet !== 'custom';
 
   const isPassword = settings.mode === 'password';
-  $('panel-password').hidden = !isPassword;
-  $('panel-passphrase').hidden = isPassword;
+  $('panel-password').hidden = appearanceOpen || !isPassword;
+  $('panel-passphrase').hidden = appearanceOpen || isPassword;
+  document.querySelector('.presets').hidden = appearanceOpen;
+  $('panel-appearance').hidden = !appearanceOpen;
+  $('appearance-toggle').setAttribute('aria-pressed', String(appearanceOpen));
   for (const tab of document.querySelectorAll('.tab')) {
     const active = tab.dataset.mode === settings.mode;
     tab.classList.toggle('is-active', active);
@@ -190,6 +211,104 @@ async function copyResult() {
   }, 1200);
 }
 
+/* ── Appearance ── */
+
+function styleHint(resolved) {
+  if (appearance.prefs.style !== 'auto') {
+    return resolved === 'nova'
+      ? 'Always the Waterfox Nova look.'
+      : 'Always the Firefox look.';
+  }
+  return isWaterfox(appearance.browserName)
+    ? 'Waterfox detected, so using its Nova look.'
+    : 'Using the Firefox look. Switches to Nova automatically in Waterfox.';
+}
+
+function renderAppearanceControls(resolved) {
+  const groups = [
+    ['appearance-style', appearance.prefs.style],
+    ['appearance-mode', appearance.prefs.mode],
+    ['accent', appearance.prefs.accent]
+  ];
+  for (const [name, value] of groups) {
+    for (const input of document.querySelectorAll(`input[name="${name}"]`)) {
+      input.checked = input.value === value;
+    }
+  }
+  // Waterfox's theme colours only mean something in the Nova look.
+  $('accent-block').hidden = resolved !== 'nova';
+  $('style-hint').textContent = styleHint(resolved);
+}
+
+function paintAppearance() {
+  const style = resolveStyle(appearance.prefs.style, appearance.browserName);
+  applyAppearance(root, { ...appearance.prefs, style }, appearance.theme);
+  try {
+    localStorage.setItem(SNAPSHOT_KEY, JSON.stringify(takeSnapshot(root)));
+  } catch {
+    /* Only costs a flash of the default look on the next open. */
+  }
+  renderAppearanceControls(style);
+}
+
+async function saveAppearance() {
+  if (!storageArea) return;
+  try {
+    await storageArea.set({ [APPEARANCE_KEY]: appearance.prefs });
+  } catch {
+    /* Convenience only. */
+  }
+}
+
+function buildSwatches() {
+  const container = $('accent-swatches');
+  for (const accent of ACCENTS) {
+    const label = document.createElement('label');
+    label.className = 'swatch';
+    label.title = accent.name;
+    const fill = normalizeColor(accent.dark);
+    label.style.setProperty('--swatch', toCss(fill));
+    label.style.setProperty('--swatch-hi', toCss(mix(fill, { r: 255, g: 255, b: 255 }, 0.4)));
+
+    const input = document.createElement('input');
+    input.type = 'radio';
+    input.name = 'accent';
+    input.value = accent.id;
+
+    const dot = document.createElement('span');
+    dot.className = 'swatch-dot';
+    dot.setAttribute('aria-hidden', 'true');
+
+    const name = document.createElement('span');
+    name.className = 'swatch-name';
+    name.textContent = accent.name;
+
+    label.append(input, dot, name);
+    container.append(label);
+  }
+}
+
+async function initAppearance() {
+  const themeApi = globalThis.browser?.theme;
+  const [stored, browserName, theme] = await Promise.all([
+    storageArea
+      ? storageArea.get(APPEARANCE_KEY).then((r) => r?.[APPEARANCE_KEY], () => null)
+      : null,
+    detectBrowserName(),
+    themeApi?.getCurrent ? themeApi.getCurrent().catch(() => null) : null
+  ]);
+  appearance.prefs = sanitizePrefs(stored);
+  appearance.browserName = browserName;
+  appearance.theme = theme;
+  paintAppearance();
+
+  // Fires when the user switches browser themes while the popup is open.
+  themeApi?.onUpdated?.addListener((info) => {
+    appearance.theme = info?.theme ?? null;
+    paintAppearance();
+  });
+}
+
 /* ── Wiring ── */
 
 function bind() {
@@ -217,6 +336,7 @@ function bind() {
   for (const tab of document.querySelectorAll('.tab')) {
     tab.addEventListener('click', () => {
       settings.mode = tab.dataset.mode;
+      appearanceOpen = false;
       writeForm();
       saveSettings();
       generate();
@@ -233,6 +353,27 @@ function bind() {
   }
 
   $('regenerate').addEventListener('click', generate);
+
+  $('appearance-toggle').addEventListener('click', () => {
+    appearanceOpen = !appearanceOpen;
+    writeForm();
+  });
+
+  const appearanceInputs = [
+    ['appearance-style', 'style'],
+    ['appearance-mode', 'mode'],
+    ['accent', 'accent']
+  ];
+  for (const [name, key] of appearanceInputs) {
+    for (const input of document.querySelectorAll(`input[name="${name}"]`)) {
+      input.addEventListener('change', () => {
+        appearance.prefs = sanitizePrefs({ ...appearance.prefs, [key]: input.value });
+        saveAppearance();
+        paintAppearance();
+      });
+    }
+  }
+
   $('copy').addEventListener('click', copyResult);
   $('result').addEventListener('click', () => getSelection().selectAllChildren($('result')));
 
@@ -248,10 +389,12 @@ function bind() {
 }
 
 async function init() {
-  // Match the browser chrome before anything is read off the screen. The
-  // stylesheet already has a sensible light/dark default, so a slow or absent
-  // theme API costs nothing but the browser's own colours.
-  applyBrowserTheme(document.documentElement);
+  // popup/boot.js has already repainted the last look; this confirms it
+  // against the real browser, theme and saved preference. It runs alongside
+  // the rest of init rather than holding it up. The swatches must exist
+  // first, because the appearance lookup can finish before bind() runs.
+  buildSwatches();
+  initAppearance();
 
   settings = await loadSettings();
   $('wordlist-size').textContent = WORDLIST.length.toLocaleString();

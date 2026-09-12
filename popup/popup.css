@@ -45,6 +45,8 @@
 
   --radius: 4px;
   --radius-lg: 8px;
+  --radius-pill: 4px;
+  --radius-pill-inner: 2px;
   --mono: "SFMono-Regular", "Cascadia Mono", Consolas, "Liberation Mono", monospace;
 }
 
@@ -111,8 +113,115 @@
   --s4: #00ddff;
 }
 
+/*
+ * Waterfox Nova. src/appearance.js sets data-style="nova" automatically in
+ * Waterfox, or when it is chosen in the Appearance panel. Same three states as
+ * the Photon blocks above. The accent comes from inline --nova-* properties
+ * (one of Waterfox's twelve theme colours, both modes at once); the fallbacks
+ * are its "Default". NOVA_SURFACES in src/appearance.js mirrors the surface
+ * colours here, and a test keeps the two in step.
+ */
+:root[data-style="nova"] {
+  --bg: #f7f7fa;
+  --bg-sunken: #efeff4;
+  --bg-raised: #ffffff;
+  --border: #dcdce3;
+  --border-strong: #9a9aa6;
+  --text: #15141a;
+  --text-muted: #5b5b66;
+
+  --button-bg: #ffffff;
+  --surface-hover: #ebebf0;
+  --surface-active: #dcdce3;
+
+  --accent: var(--nova-accent-l, #0060df);
+  --accent-hover: var(--nova-accent-hover-l, #0052be);
+  --accent-active: var(--nova-accent-active-l, #00439c);
+  --accent-text: var(--nova-accent-text-l, #ffffff);
+  --focus-ring: var(--nova-focus-l, #0060df);
+
+  --danger: #c50042;
+  --success: #017a4a;
+
+  --s0: #d70022;
+  --s1: #d76e00;
+  --s2: #a47f00;
+  --s3: #058b00;
+  --s4: var(--accent);
+
+  --radius: 10px;
+  --radius-lg: 16px;
+  --radius-pill: 999px;
+  --radius-pill-inner: 999px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root[data-style="nova"]:not([data-theme="light"]) {
+    --bg: #1f1e25;
+    --bg-sunken: #17161c;
+    --bg-raised: #2b2a33;
+    --border: #3b3a44;
+    --border-strong: #6e6d78;
+    --text: #fbfbfe;
+    --text-muted: #bfbfc9;
+
+    --button-bg: #2b2a33;
+    --surface-hover: #36353f;
+    --surface-active: #42414d;
+
+    --accent: var(--nova-accent-d, #b9d9f7);
+    --accent-hover: var(--nova-accent-hover-d, #cbe3f9);
+    --accent-active: var(--nova-accent-active-d, #d9eafb);
+    --accent-text: var(--nova-accent-text-d, #15141a);
+    --focus-ring: var(--nova-focus-d, #b9d9f7);
+
+    --danger: #ff9aa2;
+    --success: #a6e8bf;
+
+    --s0: #ff9aa2;
+    --s1: #ffb68a;
+    --s2: #ffe07a;
+    --s3: #a6e8bf;
+    --s4: var(--accent);
+  }
+}
+
+:root[data-style="nova"][data-theme="dark"] {
+  --bg: #1f1e25;
+  --bg-sunken: #17161c;
+  --bg-raised: #2b2a33;
+  --border: #3b3a44;
+  --border-strong: #6e6d78;
+  --text: #fbfbfe;
+  --text-muted: #bfbfc9;
+
+  --button-bg: #2b2a33;
+  --surface-hover: #36353f;
+  --surface-active: #42414d;
+
+  --accent: var(--nova-accent-d, #b9d9f7);
+  --accent-hover: var(--nova-accent-hover-d, #cbe3f9);
+  --accent-active: var(--nova-accent-active-d, #d9eafb);
+  --accent-text: var(--nova-accent-text-d, #15141a);
+  --focus-ring: var(--nova-focus-d, #b9d9f7);
+
+  --danger: #ff9aa2;
+  --success: #a6e8bf;
+
+  --s0: #ff9aa2;
+  --s1: #ffb68a;
+  --s2: #ffe07a;
+  --s3: #a6e8bf;
+  --s4: var(--accent);
+}
+
 * {
   box-sizing: border-box;
+}
+
+/* Author display rules (.presets is flex) otherwise beat the UA's [hidden]. */
+[hidden] {
+  display: none !important;
 }
 
 body {
@@ -161,6 +270,12 @@ body {
   margin-bottom: 10px;
 }
 
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
 .brand {
   display: flex;
   align-items: center;
@@ -170,19 +285,21 @@ body {
   font-weight: 600;
 }
 
-.tabs {
+.tabs,
+.segmented {
   display: flex;
   gap: 2px;
   padding: 2px;
   background: var(--bg-sunken);
   border: 1px solid var(--border);
-  border-radius: var(--radius);
+  border-radius: var(--radius-pill);
 }
 
-.tab {
-  padding: 4px 10px;
-  border: 0;
-  border-radius: 2px;
+.tab,
+.segmented-option {
+  padding: 3px 9px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-pill-inner);
   background: transparent;
   color: var(--text-muted);
   font: inherit;
@@ -190,12 +307,14 @@ body {
   cursor: pointer;
 }
 
-.tab:hover {
+.tab:hover,
+.segmented-option:hover {
   background: var(--surface-hover);
   color: var(--text);
 }
 
-.tab.is-active {
+.tab.is-active,
+.segmented-option:has(input:checked) {
   background: var(--accent);
   color: var(--accent-text);
   font-weight: 600;
@@ -239,7 +358,7 @@ body {
   gap: 6px;
   padding: 7px 12px;
   border: 0;
-  border-radius: var(--radius);
+  border-radius: var(--radius-pill);
   background: var(--button-bg);
   color: var(--text);
   font: inherit;
@@ -277,6 +396,26 @@ body {
 .btn-icon {
   width: 36px;
   padding: 7px 0;
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--text-muted);
+}
+
+.btn-ghost:hover,
+.btn-ghost[aria-pressed="true"] {
+  color: var(--text);
+}
+
+.btn-ghost[aria-pressed="true"] {
+  background: var(--surface-active);
+}
+
+.header .btn-icon {
+  width: 28px;
+  height: 28px;
+  padding: 0;
 }
 
 /* ── Strength meter ──────────────────────────────────────────────── */
@@ -341,7 +480,7 @@ body {
 .chip {
   padding: 4px 10px;
   border: 0;
-  border-radius: var(--radius);
+  border-radius: var(--radius-pill);
   background: var(--button-bg);
   color: var(--text);
   font: inherit;
@@ -370,7 +509,8 @@ body {
   margin-bottom: 10px;
 }
 
-.row > label:first-child {
+.row > label:first-child,
+.row-label {
   flex: 0 0 68px;
   color: var(--text-muted);
 }
@@ -468,6 +608,120 @@ code {
 .note {
   margin: 10px 0 0;
   font-size: 11px;
+}
+
+/* ── Appearance panel ────────────────────────────────────────────── */
+
+.panel-heading {
+  margin: 0 0 10px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.segmented {
+  flex: 1;
+}
+
+.segmented-option {
+  position: relative;
+  flex: 1;
+  color: var(--text-muted);
+  font-size: 12px;
+  text-align: center;
+  cursor: pointer;
+}
+
+/* The radio stays focusable and announced; the label is what shows. */
+.segmented-option input,
+.swatch input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: 0;
+  opacity: 0;
+}
+
+.segmented-option:has(input:focus-visible) {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+.hint {
+  margin: -4px 0 10px;
+}
+
+#accent-block .row-label {
+  display: block;
+}
+
+.swatches {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 8px 4px;
+  margin-top: 8px;
+}
+
+.swatch {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+}
+
+/* Waterfox draws its colour swatches as drops; so does this. */
+.swatch-dot {
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--border-strong);
+  border-radius: 50% 50% 50% 18%;
+  background: linear-gradient(135deg, var(--swatch-hi), var(--swatch));
+}
+
+.swatch:has(input:checked) .swatch-dot {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+.swatch:has(input:focus-visible) .swatch-dot {
+  outline: 2px solid var(--text);
+  outline-offset: 2px;
+}
+
+.swatch-name {
+  color: var(--text-muted);
+  font-size: 10px;
+}
+
+.swatch:has(input:checked) .swatch-name {
+  color: var(--text);
+}
+
+/* ── Nova shapes ─────────────────────────────────────────────────── */
+
+/* Waterfox outlines each option in a segmented control, not just the group. */
+:root[data-style="nova"] .tabs,
+:root[data-style="nova"] .segmented {
+  gap: 3px;
+  padding: 3px;
+  background: transparent;
+  border-color: var(--border-strong);
+}
+
+:root[data-style="nova"] .tab,
+:root[data-style="nova"] .segmented-option {
+  border-color: var(--border-strong);
+}
+
+:root[data-style="nova"] .tab.is-active,
+:root[data-style="nova"] .segmented-option:has(input:checked) {
+  border-color: var(--accent);
+}
+
+:root[data-style="nova"] .chip,
+:root[data-style="nova"] .btn:not(.btn-primary):not(.btn-ghost) {
+  border: 1px solid var(--border);
 }
 
 /* ── Footer ──────────────────────────────────────────────────────── */

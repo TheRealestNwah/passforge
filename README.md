@@ -62,6 +62,38 @@ The toolbar icon is a separate monochrome SVG that paints with `context-fill`,
 so Firefox tints it with the same colour as its own toolbar icons and it
 inverts by itself on a dark toolbar.
 
+### Waterfox Nova, and choosing the look yourself
+
+In Waterfox, the popup switches to a second style modelled on Waterfox's
+**Nova** look: pill-shaped controls, rounder cards, Nova's own light and dark
+palettes, and an accent drawn from Waterfox's twelve theme colours (Default,
+Smoke, Ash, Sun, Spark, Flame, Flare, Lavender, Dusk, Lagoon, Tide, Pine).
+Detection uses `runtime.getBrowserInfo()`, which needs no permission.
+
+The **Appearance** button (the half-filled circle next to the mode tabs) opens
+a panel to override all of it:
+
+| Setting | Options |
+| --- | --- |
+| Style | **Auto** (Nova in Waterfox, Firefox everywhere else), Firefox, Waterfox |
+| Mode | **System** (follow the browser theme, then the OS), Light, Dark |
+| Theme color | Waterfox's twelve, shown when the Waterfox style is active |
+
+The popup can't detect which theme colour you picked in Waterfox's settings,
+so that one is chosen by hand. In dark mode each accent is the pastel Waterfox
+shows on its swatch; in light mode it is a deeper shade of the same hue, since
+a pastel checkbox or focus ring barely shows on a light background. Tests hold
+every colour to 4.5:1 for its text and 3:1 for its focus ring, in both modes.
+
+The Nova style follows the browser's light/dark state but not a theme's
+individual colours, because Nova is a complete palette of its own. The Firefox
+style keeps adopting theme colours as described above. A forced Light or Dark
+ignores the browser theme entirely.
+
+To stop the popup opening in the default look and then visibly switching, a
+small synchronous script (`popup/boot.js`) repaints the last look from a local
+cache before first paint; the real lookups then confirm or correct it.
+
 ### Themes are untrusted input
 
 A theme's colours are whatever its author typed, so they are treated as
@@ -146,7 +178,7 @@ The package lands in `web-ext-artifacts/`.
 
 ```bash
 npm install
-npm test          # 50 unit tests, node:test, no browser needed
+npm test          # 67 unit tests, node:test, no browser needed
 npm run lint      # web-ext lint against the Mozilla add-on rules
 npm start         # launch a scratch Firefox profile with the add-on loaded
 ```
@@ -163,6 +195,8 @@ manifest.json         MV3 manifest (Firefox 140+, Android 142+)
 popup/                popup.html, popup.css, popup.js
 src/generator.js      generation, entropy, strength — no browser APIs
 src/theme.js          browser theme -> CSS custom properties
+src/appearance.js     style/mode/accent choice, Waterfox detection
+popup/boot.js         repaints the cached look before first paint
 src/wordlist.js       passphrase wordlist
 icons/toolbar.svg     monochrome toolbar icon, tinted by Firefox
 test/                 node:test suite

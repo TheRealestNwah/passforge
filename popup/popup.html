@@ -4,6 +4,7 @@
     <meta charset="utf-8" />
     <title>Passmint</title>
     <link rel="stylesheet" href="popup.css" />
+    <script src="boot.js"></script>
   </head>
   <body>
     <header class="header">
@@ -11,26 +12,42 @@
         <img src="../icons/icon.svg" alt="" width="18" height="18" />
         Passmint
       </h1>
-      <div class="tabs" role="tablist" aria-label="Generator mode">
+      <div class="header-actions">
+        <div class="tabs" role="tablist" aria-label="Generator mode">
+          <button
+            id="tab-password"
+            class="tab is-active"
+            role="tab"
+            aria-selected="true"
+            aria-controls="panel-password"
+            data-mode="password"
+          >
+            Password
+          </button>
+          <button
+            id="tab-passphrase"
+            class="tab"
+            role="tab"
+            aria-selected="false"
+            aria-controls="panel-passphrase"
+            data-mode="passphrase"
+          >
+            Passphrase
+          </button>
+        </div>
         <button
-          id="tab-password"
-          class="tab is-active"
-          role="tab"
-          aria-selected="true"
-          aria-controls="panel-password"
-          data-mode="password"
+          id="appearance-toggle"
+          class="btn btn-icon btn-ghost"
+          type="button"
+          title="Appearance"
+          aria-label="Appearance"
+          aria-pressed="false"
+          aria-controls="panel-appearance"
         >
-          Password
-        </button>
-        <button
-          id="tab-passphrase"
-          class="tab"
-          role="tab"
-          aria-selected="false"
-          aria-controls="panel-passphrase"
-          data-mode="passphrase"
-        >
-          Passphrase
+          <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true">
+            <circle cx="8" cy="8" r="6.25" fill="none" stroke="currentColor" stroke-width="1.5" />
+            <path d="M8 1.75a6.25 6.25 0 0 1 0 12.5z" fill="currentColor" />
+          </svg>
         </button>
       </div>
     </header>
@@ -193,6 +210,36 @@
         Drawn from a <span id="wordlist-size">—</span>-word list, about
         <span id="bits-per-word">—</span> bits per word.
       </p>
+    </section>
+
+    <!-- ── Appearance ───────────────────────────────────────────────── -->
+    <section id="panel-appearance" class="panel" aria-labelledby="appearance-heading" hidden>
+      <h2 id="appearance-heading" class="panel-heading">Appearance</h2>
+
+      <div class="row">
+        <span class="row-label" id="style-label">Style</span>
+        <div class="segmented" role="radiogroup" aria-labelledby="style-label">
+          <label class="segmented-option"><input type="radio" name="appearance-style" value="auto" />Auto</label>
+          <label class="segmented-option"><input type="radio" name="appearance-style" value="photon" />Firefox</label>
+          <label class="segmented-option"><input type="radio" name="appearance-style" value="nova" />Waterfox</label>
+        </div>
+      </div>
+      <p id="style-hint" class="muted note hint"></p>
+
+      <div class="row">
+        <span class="row-label" id="mode-label">Mode</span>
+        <div class="segmented" role="radiogroup" aria-labelledby="mode-label">
+          <label class="segmented-option"><input type="radio" name="appearance-mode" value="system" />System</label>
+          <label class="segmented-option"><input type="radio" name="appearance-mode" value="light" />Light</label>
+          <label class="segmented-option"><input type="radio" name="appearance-mode" value="dark" />Dark</label>
+        </div>
+      </div>
+
+      <div id="accent-block">
+        <span class="row-label" id="accent-label">Theme color</span>
+        <div id="accent-swatches" class="swatches" role="radiogroup" aria-labelledby="accent-label"></div>
+        <p class="muted note">Pick the theme color you use in Waterfox's settings.</p>
+      </div>
     </section>
 
     <footer class="footer">
