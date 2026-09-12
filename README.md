@@ -209,6 +209,18 @@ test/                 node:test suite
 | `Ctrl` + `Space` | Generate a new one |
 | `Ctrl` / `Cmd` + `C` | Copy (when nothing is selected) |
 
+## AI disclosure
+
+Passmint was built with [Claude Code](https://claude.com/claude-code),
+Anthropic's AI coding assistant. Claude wrote the code, tests, icons,
+wordlist and documentation. TheRealestNwah directed the design, tested it in
+the browser, and made the release decisions. Commits written with Claude
+carry a `Co-Authored-By: Claude` trailer, so the git history shows which is
+which.
+
+This is about how Passmint was made, not what it does. The extension has no AI
+features, makes no network requests, and sends nothing anywhere.
+
 ## License
 
 MIT — see [LICENSE](LICENSE).
